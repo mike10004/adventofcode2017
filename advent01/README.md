@@ -1,3 +1,7 @@
+# Day 1
+
+## Part One
+
 You're standing in a room with "digitization quarantine" written in LEDs along one wall. The only door is locked, but it includes a small interface. "Restricted Area - Strictly No Digitized Users Allowed."
 
 It goes on to explain that you may only leave by solving a captcha to prove you're not a human. Apparently, you only get one millisecond to solve the captcha: too fast for a normal human, but it feels like hours to you.
@@ -12,4 +16,21 @@ For example:
 * 91212129 produces 9 because the only digit that matches the next one is the last digit, 9.
 
 Part one answer: 1223
+
+## Part Two
+
+You notice a progress bar that jumps to 50% completion. Apparently, the door isn't yet satisfied, but it did emit a star as encouragement. The instructions change:
+
+Now, instead of considering the next digit, it wants you to consider the digit halfway around the circular list. That is, if your list contains 10 items, only include a digit in your sum if the digit 10/2 = 5 steps forward matches it. Fortunately, your list has an even number of elements.
+
+For example:
+
+* 1212 produces 6: the list contains 4 items, and all four digits match the digit 2 items ahead.
+* 1221 produces 0, because every comparison is between a 1 and a 2.
+* 123425 produces 4, because both 2s match each other, but no other digit has a match.
+* 123123 produces 12.
+* 12131415 produces 4.
+
+What is the solution to your new captcha?
+
 Part two answer: 1284
