@@ -1,23 +1,11 @@
 package main
 
 import (
-	"strconv"
 	"strings"
 	"errors"
 	"fmt"
 	"os"
 	"io/ioutil"
-)
-
-const (
-	// MaxUint is max unsigned int
-	MaxUint = ^uint(0)
-	// MinUint is min unsigned int
-	MinUint = 0
-	// MaxInt is max int
-	MaxInt = int(MaxUint >> 1)
-	// MinInt is min int
-	MinInt = -MaxInt - 1
 )
 
 // Min returns the smaller one
@@ -73,19 +61,6 @@ func bounds(numbers []int) (Bounds, error) {
 	return Bounds{min, max}, nil
 }
 
-func parseLine(line string) ([]int, error) {
-	tokens := strings.Fields(line)
-	numbers := make([]int, len(tokens))
-	for i := 0; i < len(tokens); i++ {
-		val, err := strconv.Atoi(tokens[i])
-		if err != nil {
-			return nil, errors.New("parse failure")
-		}
-		numbers[i] = val
-	}
-	return numbers, nil
-}
-
 func main() {
 	filename := "./input.txt"
 	if len(os.Args) > 1 {
@@ -101,7 +76,7 @@ func main() {
 	lines := strings.Split(text, "\n")
 	checksum := 0
 	for i := 0; i < len(lines); i++ {
-		numbers, err := parseLine(lines[i])
+		numbers, err := ParseLine(lines[i])
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err, lines[i])
 			os.Exit(1)
