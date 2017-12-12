@@ -17,6 +17,22 @@ const (
 	MinInt = -MaxInt - 1
 )
 
+// Min returns the smaller one
+func Min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+// Max returns the bigger one
+func Max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
 // ParseLine parses a line of integer tokens and returns an integer array
 func ParseLine(line string) ([]int, error) {
 	tokens := strings.Fields(line)

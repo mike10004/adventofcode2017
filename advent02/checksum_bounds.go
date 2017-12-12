@@ -8,22 +8,6 @@ import (
 	"io/ioutil"
 )
 
-// Min returns the smaller one
-func Min(x, y int) int {
-	if x < y {
-		return x
-	}
-	return y
-}
-
-// Max returns the bigger one
-func Max(x, y int) int {
-	if x > y {
-		return x
-	}
-	return y
-}
-
 func min(numbers []int) (int, error) {
 	if len(numbers) == 0 {
 		return 0, errors.New("cannot get minimum of empty array")

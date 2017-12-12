@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"strings"
 	"errors"
 	"fmt"
@@ -15,12 +16,16 @@ type Quotient struct {
 }
 
 func findDivisible(numbers []int) (Quotient, error) {
-	numerator := -1
-	denominator := -1
-	if numerator == -1 || denominator == -1 {
-		return Quotient{0, 0}, errors.New("divisible values not found in numbers array")
+	for i := 0; i < len(numbers); i++ {
+		for j := 0; j < len(numbers); j++ {
+			if i != j {
+				if (numbers[i] % numbers[j]) == 0 {
+					return Quotient{Max(numbers[i], numbers[j]), Min(numbers[i], numbers[j])}, nil
+				}
+			}
+		}
 	}
-	return Quotient{numerator, denominator}, nil
+	return Quotient{0, 0}, errors.New("no divisible numbers out of array of length " + strconv.Itoa(len(numbers)))
 }
 
 func main() {
@@ -43,12 +48,14 @@ func main() {
 			fmt.Fprintln(os.Stderr, err, lines[i])
 			os.Exit(1)
 		}
-		quotient, err := findDivisible(numbers)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err);
-			os.Exit(1)
+		if len(numbers) > 0 {
+			quotient, err := findDivisible(numbers)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err);
+				os.Exit(1)
+			}
+			checksum += (quotient.Numerator / quotient.Denominator)
 		}
-		checksum += (quotient.Numerator / quotient.Denominator)
 	}
 	fmt.Println("checksum", checksum)
 	os.Exit(0)
