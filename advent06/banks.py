@@ -27,13 +27,19 @@ def main():
     logging.basicConfig(level = eval('logging.' + args.log_level))
     banks = list(map(int, sys.stdin.read().split()))
     seen = set()
+    seen_at = {}
     ncycles = 0
+    terminated_clean = False
     while ncycles < _MAX_CYCLES:
         _log.debug(" %s", banks)
         current = tuple(banks)
         if current in seen:
+            terminated_clean = True
+            cycle_length = ncycles - seen_at[current]
+            print("encountered already-seen configuration after {} cycles; cycle length is {}".format(ncycles, cycle_length))
             break
         seen.add(current)
+        seen_at[current] = ncycles
         i = arg_max(banks)
         blocks = banks[i]
         # _log.debug("%d blocks in bank %d", blocks, i)
@@ -44,7 +50,8 @@ def main():
             banks[i] += 1
             blocks -= 1
         ncycles += 1
-    print("encountered already-seen configuration after {} cycles".format(ncycles))
+    if not terminated_clean:
+        print("terminated due to max cycles reached", file=sys.stderr)
 
 if __name__ == '__main__':
     exit(main())
