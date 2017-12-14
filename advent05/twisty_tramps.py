@@ -43,7 +43,7 @@ def main():
     jumplist = JumpList1(jumps) if args.part == 'one' else JumpList2(jumps)
     while jumplist.in_bounds():
         jumplist.advance()
-    print("exited after {} jumps".format(jumplist.steps))
+    print("exited after {} jumps from {} offsets".format(jumplist.steps, len(jumps)))
 
 if __name__ == '__main__':
     exit(main())
