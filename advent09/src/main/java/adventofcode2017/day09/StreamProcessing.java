@@ -31,6 +31,7 @@ public class StreamProcessing {
         public boolean ignore;
         public int totalScore;
         public int numGroups;
+        public int numGarbageChars;
     }
 
     private static final char START_GROUP = '{', END_GROUP = '}', START_GARBAGE = '<', END_GARBAGE = '>', IGNORE = '!', DELIM_GROUP = ',';
@@ -51,7 +52,7 @@ public class StreamProcessing {
                         state.ignore = true;
                         break;
                     default:
-                        // do nothing, just pass over the garbage
+                        state.numGarbageChars++;
                         break;
                 }
             } else {
@@ -96,5 +97,6 @@ public class StreamProcessing {
             new StreamProcessing().processAll(state, reader);
         }
         System.out.format("state.totalScore = %d%n", state.totalScore);
+        System.out.format("state.numGarbageChars = %d%n", state.numGarbageChars);
     }
 }

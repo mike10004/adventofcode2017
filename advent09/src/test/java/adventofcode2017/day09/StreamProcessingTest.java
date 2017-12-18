@@ -72,6 +72,21 @@ class StreamProcessingTest {
         assertNull(state.group);
     }
 
+    @ParameterizedTest
+    @CsvSource({
+            "<>, 0",
+            "<random characters>, 17",
+            "<<<<>, 3",
+            "<{!>}>, 2",
+            "<!!>, 0",
+            "<!!!>>, 0",
+            "'<{o\"i!a,<{i<a>', 10"
+    })
+    void processAll_countGarbage(String stream, int expectedNumGarbageChars) throws IOException {
+        State state = processAll(stream);
+        assertEquals(expectedNumGarbageChars, state.numGarbageChars, () -> "garbage count for " + stream);
+    }
+
     private State processAll(String stream) throws IOException {
         return processAll(stream, (ch, state) -> {});
     }
