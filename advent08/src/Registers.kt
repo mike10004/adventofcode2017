@@ -19,16 +19,19 @@ fun doExample() {
 
 fun main(instructionLines: Stream<String>) {
     val registers = HashMap<String, Int>()
+    var overallMax = Int.MIN_VALUE
     instructionLines.forEach({
-        line ->
-        run {
-            val instruction = parseInstruction(line)
-            instruction.perform(registers)
-        }
+        line -> parseInstruction(line).perform(registers)
+                val currentMax = registers.values.max() ?: Int.MIN_VALUE
+                if (currentMax > overallMax) {
+                    overallMax = currentMax
+                }
+
     })
     println(registers)
     val maxValue = registers.values.max()
-    println("max value is $maxValue")
+    println("current max value is $maxValue")
+    println("overall max value seen is $overallMax")
 }
 
 enum class Operator(val token : String) {
