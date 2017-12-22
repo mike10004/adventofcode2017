@@ -2,7 +2,7 @@ const assert = require('assert');
 const {CircularList} = require('./knothash');
 const util = require('util');
 
-(function(){
+(function testCirclarList(){
     function testListFromArray(array) {
         console.log('testListFromArray', array);
         const list = new CircularList();
@@ -65,6 +65,16 @@ const util = require('util');
         new ReverseTestCase([1, 2, 3, 4], 2, 3, [3, 2, 1, 4]),
         new ReverseTestCase([0, 1, 2, 3, 4, 5], 5, 3, [0, 5, 2, 3, 4, 1]),
     ].forEach(testCase => testReverse(testCase));
+})();
+
+(function testHasher() {
+    const ringSize = 5;
+    const hasher = new Hasher(ringSize);
+    const lengths = [3, 4, 1, 5];
+    hasher.hash(lengths, i => console.log('hash step', i, hasher.toString()));
+    const hash = hasher.digest();
+    console.log("digest", hash);
+    assert.equal(hash[0] * hash[1], 12, "multipled first two elements");
 })();
 
 console.log('tests passed');
