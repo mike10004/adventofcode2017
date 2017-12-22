@@ -65,12 +65,12 @@ class Hasher {
     }
 
     hash(lengths, callback) {
-        callback = callback || () => {};
+        callback = callback || (() => {});
         for (let i = 0; i < lengths.length; i++) {
             callback(i);
             const length = lengths[i];
             this.list.reverse(this.pos, length);
-            this.pos = list.mod(this.pos + length + this.skipSize);
+            this.pos = this.list.mod(this.pos + length + this.skipSize);
             this.skipSize++;
         }
     }

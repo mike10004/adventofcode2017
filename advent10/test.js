@@ -1,5 +1,5 @@
 const assert = require('assert');
-const {CircularList} = require('./knothash');
+const {CircularList, Hasher} = require('./knothash');
 const util = require('util');
 
 (function testCirclarList(){
@@ -72,6 +72,7 @@ const util = require('util');
     const hasher = new Hasher(ringSize);
     const lengths = [3, 4, 1, 5];
     hasher.hash(lengths, i => console.log('hash step', i, hasher.toString()));
+    console.log("final state", hasher.toString());
     const hash = hasher.digest();
     console.log("digest", hash);
     assert.equal(hash[0] * hash[1], 12, "multipled first two elements");
