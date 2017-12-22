@@ -1,61 +1,25 @@
 const fs = require('fs');
 
-class Node {
-
-    constructor(value, next, prev) {
-        this.value = value;
-        this.next = next;
-        this.prev = prev;
-    }
-
-}
-
 class CircularList {
 
     constructor() {
-        this.length = 0;
+        this.values = [];
     }
 
     add(value) {
-        const node = new Node(value, this.head, this.tail);
-        if (!this.head) {
-            node.next = node;
-            this.head = node;
-        }
-        this.head.prev = node;
-        if (!this.tail) {
-            node.prev = node;
-        }
-        const prevTail = this.tail;
-        this.tail = node;
-        if (prevTail) {
-            prevTail.next = node;
-        }
-        this.length++;
+        this.values.push(value);
     }
 
     size() {
-        return this.length;
+        return this.values.length;
     }
 
     get(index) {
-        if (index >= 0 && index < this.size()) {
-            let node = this.head;
-            for (let i = 0; i < index; i++) {
-                node = node.next;
-            }
-            return node.value;
-        } 
+        return this.values[index];
     }
 
     toArray() {
-        const values = [];
-        let node = this.head;
-        for (let i = 0; i < this.size(); i++) {
-            values.push(node.value);
-            node = node.next;
-        }
-        return values;
+        return this.values.concat([]);
     }
 }
 
