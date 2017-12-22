@@ -5,6 +5,7 @@
   "description": "",
   "scripts": {
     "part1": "node part1.js",
+    "part2": "node part2.js",
     "test": "node test.js"
   },
   "repository": {

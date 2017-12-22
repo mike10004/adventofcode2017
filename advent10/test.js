@@ -1,5 +1,5 @@
 const assert = require('assert');
-const {CircularList, Hasher} = require('./knothash');
+const {CircularList, Hasher, Encoder} = require('./knothash');
 const util = require('util');
 
 (function testCirclarList(){
@@ -76,6 +76,29 @@ const util = require('util');
     const hash = hasher.digest();
     console.log("digest", hash);
     assert.equal(hash[0] * hash[1], 12, "multipled first two elements");
+
+    assert.equal(hasher.xor([65, 27, 9, 1, 4, 3, 40, 50, 91, 7, 6, 0, 2, 5, 68, 22]), 64);
+
+    const dense = hasher.makeDense([1, 2, 3, 4, 5, 6, 7, 8], 2);
+    assert.equal(dense.length, 4);
+
+    [
+        ['', 'a2582a3a0e66e6e86e3812dcb672a272'],
+        ['AoC 2017', '33efeb34ea91902bb2f59c9920caa6cd'],
+        ['1,2,3', '3efbe78a8d82f29979031a4aa0b16a9d'],
+        ['1,2,4', '63960835bcdc130f0b66d7ff4f6a5a8e'],
+    ].forEach(testCase => {
+        const input = testCase[0], expected = testCase[1];
+        const h = new Hasher(256);
+        const actual = h.hashFull(input);
+        console.log(util.format("%s -> %s", input, actual));
+        assert.equal(actual, expected);
+    })
+})();
+
+(function testEncoder() {
+    assert.deepEqual(new Encoder([]).encode("1,2,3"), [49,44,50,44,51]);
+    assert.deepEqual(new Encoder().encode("1,2,3"), [49,44,50,44,51, 17, 31, 73, 47, 23]);
 })();
 
 console.log('tests passed');

@@ -55,6 +55,7 @@ class CircularList {
 class Hasher {
     
     constructor(ringSize) {
+        ringSize = ringSize || 256;
         this.pos = 0;
         this.skipSize = 0;
         const values = [];
@@ -84,9 +85,59 @@ class Hasher {
         values[this.pos] = util.format("[%s]", values[this.pos]);
         return util.format("State{%s, skipSize=%s}", values.join(" "), this.skipSize);
     }
+
+    xor(nums) {
+        let h = 0; 
+        for (let i = 0; i < nums.length; i++) {
+            h = (h ^ nums[i]);
+        }
+        return h;
+    }
+
+    makeDense(hash, unitSize) {
+        unitSize = unitSize || 16;
+        assert(hash.length > 0);
+        const units = [];
+        let unit = [];
+        for (let i = 0; i < hash.length; i++) {
+            unit.push(hash[i]);
+            if (unit.length === unitSize) {
+                units.push(unit);
+                unit = [];
+            }
+        }
+        const x = this.xor;
+        return units.map(u => x(u));
+    }
+
+    hashFull(input, rounds) {
+        rounds = rounds || 64;
+        const lengths = new Encoder().encode(input);
+        for (let i = 0; i < rounds; i++) {
+            this.hash(lengths);
+        }
+        const denseHash = this.makeDense(this.digest());
+        return new Buffer(denseHash).toString('hex');
+    }
+}
+
+class Encoder {
+    
+    constructor(suffix) {
+        this.suffix = suffix || [17, 31, 73, 47, 23];
+    }
+
+    encode(input) {
+        const lengths = [];
+        for (let i = 0; i < input.length; i++) {
+            lengths.push(input.charCodeAt(i));
+        }
+        return lengths.concat(this.suffix);
+    }
 }
 
 module.exports = {
     CircularList: CircularList,
-    Hasher: Hasher
+    Hasher: Hasher,
+    Encoder: Encoder
 };
