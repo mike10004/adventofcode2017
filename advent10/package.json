@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "part1": "node part1.js",
     "test": "node test.js"
   },
   "repository": {
