@@ -76,10 +76,13 @@ class Geometry {
     }
 
     // produce a new hex that represents a move from the given hex along an array of directions
-    travel(hex, path) {
+    travel(hex, path, callback) {
         let final = hex;
+        let n = 0;
         path.forEach(direction => {
             final = this.move(final, direction);
+            n++;
+            callback && callback(final, direction, n);
         });
         return final;
     }
@@ -127,7 +130,14 @@ if (args.length > 0) {
     const path = args[0];
     const fs = require('fs');
     const hexPath = parsePath(fs.readFileSync(path, 'utf8'));
-    const position = geometry.travel(origin, hexPath);
+    let farthest = 0;
+    const position = geometry.travel(origin, hexPath, (hex) => {
+        const current = geometry.distance(origin, hex);
+        if (current > farthest) {
+            farthest = current;
+        }
+    });
     const dist = geometry.distance(origin, position);
     console.log(util.format("%d steps to reach %s from %s", dist, origin, position));
+    console.log(util.format("farthest distance was %s hexes", farthest));
 }
