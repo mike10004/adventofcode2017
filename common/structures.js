@@ -1,11 +1,9 @@
-class TreeNode {
-    constructor(children) {
-        this.children = children || [];
-    }
+const assert = require('assert');
 
-    toString() {
-        const d = this.depth();
-        return this.name + '(depth=' + d + ', freight=' + this.freight + ')';
+class Node {
+
+    constructor() {
+
     }
 
     depth() {
@@ -26,6 +24,15 @@ class TreeNode {
             node = node.parent;
         }
         return path;
+    }
+
+}
+
+class TreeNode extends Node {
+    
+    constructor(children) {
+        super();
+        this.children = children || [];
     }
 
     siblings() {
@@ -93,10 +100,37 @@ class Multimap {
 
 }
 
+class QSet {
+
+    constructor(keyFactory) {
+        this.items = new Map();
+        this.keyFactory = keyFactory || (item => JSON.stringify(item));
+    }
+
+    add(item) {
+        const key = this.keyFactory(item);
+        if (!this.items.has(key)) {
+            this.items.set(key, item);
+            return true;
+        }
+        return false;
+    }
+
+    remove(item) {
+        const key = this.keyFactory(item);
+        return this.items.delete(key);
+    }
+
+    iterator() {
+        return this.items.values();
+    }
+}
+
 module.exports = {
     Multimap: Multimap,
     Queue: Queue,
     TreeNode: TreeNode,
-    breadthFirstTreeTraversal: breadthFirstTreeTraversal
+    breadthFirstTreeTraversal: breadthFirstTreeTraversal,
+    QSet: QSet
 };
 

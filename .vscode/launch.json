@@ -19,6 +19,13 @@
             "args": [
                 "${workspaceFolder}/advent07/testinput1.txt"
             ]
-        }
-    ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "advent11: launch",
+            "cwd": "${workspaceFolder}/advent11",
+            "program": "${workspaceFolder}/advent11/hexed.js"
+        },
+   ]
 }
