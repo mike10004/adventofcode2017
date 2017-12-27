@@ -202,6 +202,22 @@ class Table {
         }
         return m;
     }
+
+    rowKeys() {
+        return Array.from(this.rows.keys());
+    }
+
+    columnKeys() {
+        const cks = [];
+        for (const entry of this.rows) {
+            const row = entry[0], colMap = entry[1];
+            for (const col of colMap.keys()) {
+                cks.push(col);
+            }
+        }
+        return cks;
+    }
+
 }
 
 function getSorter(value) {
@@ -233,6 +249,7 @@ class SymmetricTable extends Table {
         const coordinates = this.normalize(row, col);
         return super.get(coordinates[0], coordinates[1]);
     }
+
 }
 
 class UndirectedGraph {
@@ -255,6 +272,13 @@ class UndirectedGraph {
         const colKeys = Array.from(colMap.keys());
         const all = rowKeys.concat(colKeys);
         return all;
+    }
+
+    vertexSet() {
+        const rowKeys = this.matrix.rowKeys(), columnKeys = this.matrix.columnKeys();
+        const vertexSet = new Set();
+        rowKeys.concat(columnKeys).forEach(k => vertexSet.add(k));
+        return vertexSet;
     }
 
     traverseDepthFirst(root, callback) {

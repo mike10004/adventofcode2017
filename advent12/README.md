@@ -46,3 +46,5 @@ A group is a collection of programs that can all communicate via pipes either di
 In the example above, there were 2 groups: one consisting of programs 0,2,3,4,5,6, and the other consisting solely of program 1.
 
 How many groups are there in total?
+
+Your puzzle answer was 213.

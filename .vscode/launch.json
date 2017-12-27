@@ -30,9 +30,19 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "advent12: launch",
+            "name": "advent12: test",
             "cwd": "${workspaceFolder}/advent12",
             "program": "${workspaceFolder}/advent12/plumber.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "advent12: run",
+            "cwd": "${workspaceFolder}/advent12",
+            "program": "${workspaceFolder}/advent12/plumber.js",
+            "args": [
+                "${workspaceFolder}/advent12/input.txt"
+            ]
         },
    ]
 }
