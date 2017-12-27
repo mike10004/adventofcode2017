@@ -67,14 +67,12 @@ if (args.length > 0) {
     const inputText = require('fs').readFileSync(args[0], 'utf8');
     const g = makeGraphFromMultimap(parseMultimap(inputText));
     const vertices = g.vertexSet();
-    const uncounted = new Set(vertices);
     let numGroups = 0;
-    while (uncounted.size > 0) {
-        let v = uncounted.entries().next().value[0];
+    for (let v of vertices) {
         const reachable = findReachable(g, v);
         console.log(util.format("%d programs reachable from %d", reachable.size, v));
         for (let u of reachable) {
-            uncounted.delete(u);
+            vertices.delete(u);
         }
         numGroups++;
     }
