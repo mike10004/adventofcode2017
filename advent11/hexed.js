@@ -2,40 +2,19 @@ const structures = require('../common/structures');
 const assert = require('assert');
 const util = require('util');
 
-class Hex {
-
-    constructor(x, y, z) {
-        if (Array.isArray(x)) {
-            this.x = x[0];
-            this.y = x[1];
-            this.x = x[2];
-        } else {
-            this.x = x || 0;
-            this.y = y || 0;
-            this.z = z || 0;
-        }
-        this.str = util.format("[%s, %s, %s]", this.x, this.y, this.z);
-    }
-
-    toString() {
-        return this.str;
-    }
-    
-}
-
 // https://stackoverflow.com/a/5085274/2657036
 const ALTHENIA = {
     offsets: [
-        ['nw', [ -1,  1,  0]],
-        ['n',  [  0,  1,  0]],
-        ['ne', [  1,  0,  0]],
-        ['se', [  1, -1,  0]],
-        ['s',  [  0, -1,  0]],
-        ['sw', [ -1,  0,  0]],
+        ['nw', [ -1,  1]],
+        ['n',  [  0,  1]],
+        ['ne', [  1,  0]],
+        ['se', [  1, -1]],
+        ['s',  [  0, -1]],
+        ['sw', [ -1,  0]],
     ], 
     distance: function(a, b) {
-        const dx  = a.x - b.x;
-        const dy = a.y - b.y;
+        const dx  = a[0] - b[0];
+        const dy = a[1] - b[1];
         if ((dx < 0) === (dy < 0)) {
             return Math.abs(dx + dy);
         } else {
@@ -54,7 +33,7 @@ const CUBE = {
         ['sw', [ 0,  1,  0]],
     ], 
     distance: function(a, b) {
-        return Math.abs(a.x - b.x) + Math.abs(a.y - b.y) + Math.abs(a.z - b.z);
+        return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
     }
 };
 
@@ -89,7 +68,7 @@ class Geometry {
 
     // produce a new hex that represents a move from the given hex along an array of offsets
     translate(hex, offset) {
-        return new Hex(hex.x + offset[0], hex.y + offset[1], hex.z + offset[2]);
+        return hex.map((value, index) => value + (offset[index] || 0));
     }
 
     // produce an array of hexes that represents the neighbors of the given hex
@@ -105,7 +84,7 @@ function parsePath(input) {
 }
 
 
-const origin = new Hex(0, 0, 0);
+const origin = [0, 0];
 const geometry = new Geometry(ALTHENIA);
 
 (function testTravel(testCases){
