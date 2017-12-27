@@ -27,5 +27,12 @@
             "cwd": "${workspaceFolder}/advent11",
             "program": "${workspaceFolder}/advent11/hexed.js"
         },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "advent12: launch",
+            "cwd": "${workspaceFolder}/advent12",
+            "program": "${workspaceFolder}/advent12/plumber.js"
+        },
    ]
 }
