@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
     min_delay_str = argv[1];
     max_delay_str = argv[2];
     if (argc > 3) {
-        quiet = (strcmp("quiet", argv[i]) == 0) ? TRUE : FALSE;
+        quiet = (strcmp("quiet", argv[3]) == 0) ? TRUE : FALSE;
     }
     if (min_delay_str != NULL) {
         if (sscanf(min_delay_str, "%lu", &min_delay) != 1) {
@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
     num_layers = read_layers(stdin, firewall.layers);
     firewall.num_layers = num_layers;
     firewall.max_depth = find_max_depth(firewall.layers, firewall.num_layers);
-    fprintf(info_out, "%s: %d layers parsed; delay [%lu, %lu]\n", PROG, num_layers, min_delay, max_delay);
+    fprintf(info_out, "%s: %d layers parsed; delay [%lu, %lu]; quiet = %s%s", PROG, num_layers, min_delay, max_delay, quiet ? "true" : "false", EOL);
     if (num_layers < 0) {
         return ERR_INPUT;
     }
