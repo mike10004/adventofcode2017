@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #define MAX_LAYERS 256
 
@@ -41,9 +42,11 @@ typedef struct firewall_t {
     int max_depth;
 } Firewall;
 
+Boolean quiet = FALSE;
+
 void reset_layer(Layer* layer)
 {
-    layer->scanner_direction = 0;
+    layer->scanner_position = 0;
     layer->scanner_direction = 1;
 }
 
@@ -76,6 +79,9 @@ void dump_layer(Layer* layer, State* state, FILE* ofile)
 {
     int r;
     Boolean has_scanner, has_packet;
+    if (quiet) {
+        return;
+    }
     fprintf(ofile, DEPTH_FMT, layer->depth);
     for (r = 0; r < layer->range; r++) {
         has_scanner = (r == layer->scanner_position);
@@ -89,6 +95,10 @@ void dump_layers(Firewall* firewall, State* state, FILE* ofile)
 {
     int depth, j;
     Boolean has_layer = FALSE;
+    if (quiet) {
+        return;
+    }
+    fprintf(ofile, EOL);
     for (depth = 0; depth <= firewall->max_depth; depth++) {
         has_layer = FALSE;
         for (j = 0; j < firewall->num_layers; j++) {
@@ -106,6 +116,7 @@ void dump_layers(Firewall* firewall, State* state, FILE* ofile)
             }            
         }
     }
+    fprintf(ofile, EOL);
 }
 
 // read "depth: range" lines from file into layers array; return num layers
@@ -170,63 +181,90 @@ void advance_scanners(Firewall* firewall)
 
 int main(int argc, char* argv[]) 
 {
-    int num_layers, pico = -1, severity, delay = -1, min_delay;
-    unsigned long max_delay;
+    const unsigned long MAX_DELAY_CAP = 1024 * 1024 * 1024;
+    int num_layers, pico = -1, severity, i;
+    unsigned long max_delay = MAX_DELAY_CAP, delay, min_delay = 0;
+    char* min_delay_str = NULL;
+    char* max_delay_str = NULL;
     Boolean caught = FALSE;
-    const unsigned long MAX_DELAY = 1024 * 1024 * 1024;
     Firewall firewall;
     State state;
     FILE* layer_out = stderr;
     FILE* info_out = stdout;
-    if (argc > 1) {
-        if ((sscanf(argv[1], "%d", &delay) != 1) || (delay < 0) || (delay > MAX_DELAY)) {
-            fprintf(stderr, "%s: invalid delay: %s%s", PROG, argv[1], EOL);
+    if (argc < 3) {
+        fprintf(stderr, "%s: must specify delay interval%s", PROG, EOL);
+        return ERR_USAGE;
+    }
+    min_delay_str = argv[1];
+    max_delay_str = argv[2];
+    if (argc > 3) {
+        quiet = (strcmp("quiet", argv[i]) == 0) ? TRUE : FALSE;
+    }
+    if (min_delay_str != NULL) {
+        if (sscanf(min_delay_str, "%lu", &min_delay) != 1) {
+            fprintf(stderr, "%s: invalid min delay: %s%s", PROG, min_delay_str, EOL);
             return ERR_USAGE;
         }
+    }
+    if (max_delay_str != NULL) {
+        if (sscanf(max_delay_str, "%lu", &max_delay) != 1) {
+            fprintf(stderr, "%s: invalid max delay: %s%s", PROG, max_delay_str, EOL);
+            return ERR_USAGE;
+        }
+    }
+    if ((min_delay > max_delay) || (max_delay > MAX_DELAY_CAP)) {
+        fprintf(stderr, "%s: invalid min or max delay: [%lu, %lu]%s", PROG, min_delay, max_delay, EOL);
+        return ERR_USAGE;
     }
     num_layers = read_layers(stdin, firewall.layers);
     firewall.num_layers = num_layers;
     firewall.max_depth = find_max_depth(firewall.layers, firewall.num_layers);
-    fprintf(stderr, "%s: %d layers parsed\n", PROG, num_layers);
+    fprintf(info_out, "%s: %d layers parsed; delay [%lu, %lu]\n", PROG, num_layers, min_delay, max_delay);
     if (num_layers < 0) {
         return ERR_INPUT;
     }
-    if (delay == -1) {
-        min_delay = 0;
-        max_delay = MAX_DELAY;
-    } else {
-        min_delay = delay;
-        max_delay = delay;
-    }
     for (delay = min_delay; delay <= max_delay; delay++) {
-        fprintf(layer_out, "Delay: %d%s", delay, EOL);
+        pico = -1;
+        if (!quiet) {
+            fprintf(layer_out, "Delay: %lu%s", delay, EOL);
+        }
         reset_firewall(&firewall);
         reset_state(&state);
-        fprintf(layer_out, "Picosecond %d (packet depth %d of %d)%s", pico, state.packet_depth, firewall.max_depth, EOL);
+        if (!quiet) {
+            fprintf(layer_out, "Picosecond %d (packet depth %d of %d)%s", pico, state.packet_depth, firewall.max_depth, EOL);
+        }
         dump_layers(&firewall, &state, layer_out);
-        fprintf(layer_out, EOL);
+        caught = FALSE;
         while (state.packet_depth < firewall.max_depth) {
             pico++;
             if (pico >= delay) {
                 caught = advance_packet(&firewall, &state, &severity);
             }
-            fprintf(layer_out, "Picosecond %d (packet depth %d of %d; %s)%s", pico, state.packet_depth, firewall.max_depth, caught ? "CAUGHT" : "uncaught", EOL);
+            if (!quiet) {
+                fprintf(layer_out, "Picosecond %d (packet depth %d of %d; %s)%s", pico, state.packet_depth, firewall.max_depth, caught ? "CAUGHT" : "uncaught", EOL);
+            }
             dump_layers(&firewall, &state, layer_out);
             if (caught) {
-                fprintf(layer_out, "%s>>> Accumulated severity %d at depth %d; total severity %d%s", EOL, severity, state.packet_depth, state.accum_severity, EOL);
+                if (!quiet) {
+                    fprintf(layer_out, "%s>>> Accumulated severity %d at depth %d; total severity %d%s", EOL, severity, state.packet_depth, state.accum_severity, EOL);
+                }
                 break;
             }
             advance_scanners(&firewall);
-            fprintf(layer_out, EOL);
             dump_layers(&firewall, &state, layer_out);
-            fprintf(layer_out, EOL);
         }
         if (caught) {
-            fprintf(layer_out, "CAUGHT with delay %d; total severity accumulated: %d%s", delay, state.accum_severity, EOL);
+            if (!quiet) {
+                fprintf(layer_out, "CAUGHT with delay %lu; total severity accumulated: %d%s", delay, state.accum_severity, EOL);
+            }
         } else {
-            fprintf(info_out, "Successful delay: %d picoseconds%s", delay, EOL);
+            fprintf(info_out, "Successful delay: %lu picoseconds%s", delay, EOL);
             break;
         }            
+    }
+    if (caught) {
+        fprintf(info_out, "CAUGHT with all delays in interval [%lu, %lu]%s", min_delay, max_delay, EOL);
+        return ERR_CAUGHT;
     }
     return 0;
 }
