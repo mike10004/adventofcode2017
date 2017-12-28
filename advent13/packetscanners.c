@@ -6,6 +6,7 @@
 
 #define ERR_USAGE 1
 #define ERR_INPUT 2
+#define ERR_CAUGHT 3
 
 #define EOL "\n"
 #define DEPTH_FMT "%2d"
@@ -40,27 +41,22 @@ typedef struct firewall_t {
     int max_depth;
 } Firewall;
 
-void init_layer(Layer* layer)
+void reset_layer(Layer* layer)
 {
-    layer->depth = -1;
-    layer->range = -1;
     layer->scanner_direction = 0;
     layer->scanner_direction = 1;
 }
 
-void init_firewall(Firewall* firewall)
+void reset_firewall(Firewall* firewall)
 {
     int i;
     for (i = 0; i < MAX_LAYERS; i++) {
-        init_layer(&(firewall->layers[i]));
+        reset_layer(&(firewall->layers[i]));
     }
-    firewall->num_layers = 0;
-    firewall->max_depth = -1;
 }
 
-void init_state(State* state)
+void reset_state(State* state)
 {
-    state->picosecond = 0;
     state->packet_depth = -1;
     state->accum_severity = 0;
 }
@@ -124,7 +120,6 @@ int read_layers(FILE* infile, Layer* layers)
             fprintf(stderr, "%s: %d tokens on malformed line: %s\n", PROG, ntokens, line_buffer);
             return -1;
         }
-        init_layer(&(layers[num_layers]));
         layers[num_layers].depth = depth;
         layers[num_layers].range = range;
         num_layers++;
@@ -137,20 +132,21 @@ int get_severity(Layer* layer)
     return layer->depth * layer->range;
 }
 
-int advance_packet(Firewall* firewall, State* state)
+Boolean advance_packet(Firewall* firewall, State* state, int* severity)
 {
-    int j, severity;
+    int j;
+    *severity = -1;
     state->packet_depth = state->packet_depth + 1;
     for (j = 0; j < firewall->num_layers; j++) {
         if (firewall->layers[j].depth == state->packet_depth) {
             if (firewall->layers[j].scanner_position == PACKET_POSITION) {
-                severity = get_severity(&(firewall->layers[j]));
-                state->accum_severity += severity;
-                return severity;
+                *severity = get_severity(&(firewall->layers[j]));
+                state->accum_severity += (*severity);
+                return TRUE;
             }
         }
     }
-    return 0;
+    return FALSE;
 }
 
 void advance_scanner(Layer* layer)
@@ -174,11 +170,20 @@ void advance_scanners(Firewall* firewall)
 
 int main(int argc, char* argv[]) 
 {
-    int num_layers, pico = -1, severity;
+    int num_layers, pico = -1, severity, delay = -1, min_delay;
+    unsigned long max_delay;
+    Boolean caught = FALSE;
+    const unsigned long MAX_DELAY = 1024 * 1024 * 1024;
     Firewall firewall;
     State state;
-    init_firewall(&firewall);
-    init_state(&state);
+    FILE* layer_out = stderr;
+    FILE* info_out = stdout;
+    if (argc > 1) {
+        if ((sscanf(argv[1], "%d", &delay) != 1) || (delay < 0) || (delay > MAX_DELAY)) {
+            fprintf(stderr, "%s: invalid delay: %s%s", PROG, argv[1], EOL);
+            return ERR_USAGE;
+        }
+    }
     num_layers = read_layers(stdin, firewall.layers);
     firewall.num_layers = num_layers;
     firewall.max_depth = find_max_depth(firewall.layers, firewall.num_layers);
@@ -186,23 +191,43 @@ int main(int argc, char* argv[])
     if (num_layers < 0) {
         return ERR_INPUT;
     }
-    fprintf(stdout, "Picosecond %d (packet depth %d of %d)%s", pico, state.packet_depth, firewall.max_depth, EOL);
-    dump_layers(&firewall, &state, stdout);
-    fprintf(stdout, EOL);
-    while (state.packet_depth < firewall.max_depth) {
-        pico++;
-        severity = advance_packet(&firewall, &state);
-        fprintf(stdout, "Picosecond %d (packet depth %d of %d)%s", pico, state.packet_depth, firewall.max_depth, EOL);
-        dump_layers(&firewall, &state, stdout);
-        if (severity > 0) {
-            fprintf(stderr, "%s>>> Accumulated severity %d at depth %d; total severity %d%s", EOL, severity, state.packet_depth, state.accum_severity, EOL);
-        }
-        advance_scanners(&firewall);
-        fprintf(stdout, EOL);
-        dump_layers(&firewall, &state, stdout);
-        fprintf(stdout, EOL);
+    if (delay == -1) {
+        min_delay = 0;
+        max_delay = MAX_DELAY;
+    } else {
+        min_delay = delay;
+        max_delay = delay;
     }
-    fprintf(stdout, "Total severity accumulated: %d%s", state.accum_severity, EOL);
+    for (delay = min_delay; delay <= max_delay; delay++) {
+        fprintf(layer_out, "Delay: %d%s", delay, EOL);
+        reset_firewall(&firewall);
+        reset_state(&state);
+        fprintf(layer_out, "Picosecond %d (packet depth %d of %d)%s", pico, state.packet_depth, firewall.max_depth, EOL);
+        dump_layers(&firewall, &state, layer_out);
+        fprintf(layer_out, EOL);
+        while (state.packet_depth < firewall.max_depth) {
+            pico++;
+            if (pico >= delay) {
+                caught = advance_packet(&firewall, &state, &severity);
+            }
+            fprintf(layer_out, "Picosecond %d (packet depth %d of %d; %s)%s", pico, state.packet_depth, firewall.max_depth, caught ? "CAUGHT" : "uncaught", EOL);
+            dump_layers(&firewall, &state, layer_out);
+            if (caught) {
+                fprintf(layer_out, "%s>>> Accumulated severity %d at depth %d; total severity %d%s", EOL, severity, state.packet_depth, state.accum_severity, EOL);
+                break;
+            }
+            advance_scanners(&firewall);
+            fprintf(layer_out, EOL);
+            dump_layers(&firewall, &state, layer_out);
+            fprintf(layer_out, EOL);
+        }
+        if (caught) {
+            fprintf(layer_out, "CAUGHT with delay %d; total severity accumulated: %d%s", delay, state.accum_severity, EOL);
+        } else {
+            fprintf(info_out, "Successful delay: %d picoseconds%s", delay, EOL);
+            break;
+        }            
+    }
     return 0;
 }
 
