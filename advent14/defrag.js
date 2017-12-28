@@ -20,21 +20,25 @@ function padLeft(value, minLength, padchar) {
     return value;
 }
 
-function toGrid(row) {
+function drawGrid(row) {
     return row.replace(/1/g, '#').replace(/0/g, '.');
+}
+
+function concatenate(a, b) {
+    return a.concat(b);
 }
 
 function makeRow(key, index) {
     const knot = new Hasher().hashFull(util.format('%s-%d', key, index));
     return knot.split('').map(digit => {
-        return padLeft(parseInt(digit, 16).toString(2), 4);
-    }).join('');
+        return padLeft(parseInt(digit, 16).toString(2), 4).split('').map(x => parseInt(x, 10));
+    }).reduce(concatenate);
 }
 
 function countUsed(key) {
     const rows = range(0, 128).map(rowIndex => makeRow(key, rowIndex));
-    const grid = rows.map(toGrid).join('\n');
-    const numUsed = grid.split('').map(x => x === '#' ? 1 : 0).reduce((a, b) => a + b);
+    const grid = rows.reduce(concatenate);
+    const numUsed = grid.reduce((a, b) => a + b);
     return numUsed;
 }
 
@@ -43,6 +47,9 @@ const assert = require('assert');
 (function testMakeRow(key){
     const row = makeRow(key, 0);
     assert.equal(row.length, 128);
+    row.forEach(value => {
+        assert(value === 0 || value === 1, 'value is not 0 or 1: ' + value);
+    });
     console.log('makeRow passed tests');
 })('flqrgnkx');
 
