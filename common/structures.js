@@ -266,6 +266,7 @@ class UndirectedGraph {
         this.matrix.put(v1, v2, this.normalizeEdgeLabel(label));
     }
 
+    // return an array of labels of neighboring vertices
     adjacent(v) {
         const rowMap = this.matrix.rowMap(v), colMap = this.matrix.columnMap(v);
         const rowKeys = Array.from(rowMap.keys());
@@ -274,6 +275,7 @@ class UndirectedGraph {
         return all;
     }
 
+    // return a Set of vertex labels
     vertexSet() {
         const rowKeys = this.matrix.rowKeys(), columnKeys = this.matrix.columnKeys();
         const vertexSet = new Set();
