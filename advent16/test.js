@@ -5,7 +5,7 @@ const {
     Instruction
 } = require('./promenade');
 
-describe('Promenade.parseInstruction', () => {
+describe('Instruction.parseInstruction', () => {
     [
         {
             input: 's1',
@@ -21,7 +21,7 @@ describe('Promenade.parseInstruction', () => {
         }
     ].forEach(testCase => {
         it('input: ' + testCase.input, () => {
-            const actual = new Promenade('').parseInstruction(testCase.input);
+            const actual = Instruction.parseInstruction(testCase.input);
             assert.deepEqual(actual, testCase.expected);
         });
     });
@@ -42,9 +42,16 @@ describe('Promenade', () => {
 });
 
 describe('Promenade.processAll', () => {
-    it('example', () => {
-        const instructions = ['s1', 'x3/4', 'pe/b'];
-        const actual = new Promenade('abcde').processAll(instructions);
+    it('one dance', () => {
+        const instructions = ['s1', 'x3/4', 'pe/b'].map(s => Instruction.parseInstruction(s));
+        const actual = new Promenade('abcde').processAll(instructions).state();
         assert.equal(actual, 'baedc');
+    });
+    it('two dances', () => {
+        const instructions = ['s1', 'x3/4', 'pe/b'].map(s => Instruction.parseInstruction(s));
+        const p = new Promenade('abcde');
+        p.processAll(instructions);
+        p.processAll(instructions);
+        assert.equal(p.state(), 'ceadb');
     })
 });

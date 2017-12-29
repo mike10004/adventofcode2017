@@ -17,6 +17,22 @@ class Instruction {
         }
     }
 
+    static parseInstruction(instructionStr) {
+        let m = /^s(\d+)$/.exec(instructionStr);
+        if (m !== null) {
+            return new Instruction(Action.SPIN, parseInt(m[1], 10));
+        }
+        m = /^x(\d+)\/(\d+)$/.exec(instructionStr);
+        if (m !== null) {
+            return new Instruction(Action.EXCHANGE, parseInt(m[1], 10), parseInt(m[2], 10));
+        }
+        m = /^p(\w+)\/(\w+)$/.exec(instructionStr);
+        if (m !== null) {
+            return new Instruction(Action.PARTNER, m[1], m[2]);
+        }
+        throw 'Invalid instruction ' + instructionStr.slice(0, 128);
+    }
+
 }
 
 class Promenade {
@@ -31,14 +47,13 @@ class Promenade {
 
     /**
      * Returns string representation of sequence after all instructions processed.
-     * @param {Array} instructions as strings
+     * @param {Array} instructions 
      */
     processAll(instructions) {
-        instructions.forEach(instructionStr => {
-            const instruction = this.parseInstruction(instructionStr);
+        instructions.forEach(instruction => {
             this.processOne(instruction);
         });
-        return this.state();
+        return this;
     }
 
     state() {
@@ -60,22 +75,6 @@ class Promenade {
             default:
                 throw 'unhandled action: ' + instruction.action;
         }
-    }
-
-    parseInstruction(instructionStr) {
-        let m = /^s(\d+)$/.exec(instructionStr);
-        if (m !== null) {
-            return new Instruction(Action.SPIN, parseInt(m[1], 10));
-        }
-        m = /^x(\d+)\/(\d+)$/.exec(instructionStr);
-        if (m !== null) {
-            return new Instruction(Action.EXCHANGE, parseInt(m[1], 10), parseInt(m[2], 10));
-        }
-        m = /^p(\w+)\/(\w+)$/.exec(instructionStr);
-        if (m !== null) {
-            return new Instruction(Action.PARTNER, m[1], m[2]);
-        }
-        throw 'Invalid instruction ' + instructionStr.slice(0, 128);
     }
 
     spin(n) {
