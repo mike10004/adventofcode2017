@@ -7,11 +7,13 @@ _NUM_TAIL_BITS = 16
 
 FACTOR_A = 16807
 FACTOR_B = 48271
+CONSTRAINT_A = 4
+CONSTRAINT_B = 8
 
-class Generator:
+class Generator(object):
 
     def __init__(self, factor, start, modulus=_MODULUS):
-        self.previous = start;
+        self.previous = start
         self.factor = factor
         self.modulus = modulus
     
@@ -21,6 +23,21 @@ class Generator:
             return self.previous
         else:
             return list(map(lambda _: self.next(), list(range(n))))
+
+class PickyGenerator(Generator):
+
+    def __init__(self, factor, start, constraint, modulus=_MODULUS):
+        super(PickyGenerator, self).__init__(factor, start, modulus)
+        self.constraint = constraint
+    
+    def next(self, n=None):
+        if n is None:
+            while True:
+                val = super(PickyGenerator, self).next()
+                if val % self.constraint == 0:
+                    return val
+        else:
+            return super(PickyGenerator, self).next(n)
 
 def base2str(value):
     """Produces the binary string representation of an integer value"""
@@ -51,10 +68,20 @@ class Judge:
 # Generator B starts with 301
 
 if __name__ == '__main__':
-    a = Generator(FACTOR_A, 634)
-    b = Generator(FACTOR_B, 301)
+    from argparse import ArgumentParser
+    p = ArgumentParser()
+    p.add_argument("part", choices=('one', 'two'))
+    p.add_argument("--start-a", type=int, default=634)
+    p.add_argument("--start-b", type=int, default=301)
+    args = p.parse_args()
+    if args.part == 'one':
+        a = Generator(FACTOR_A, args.start_a)
+        b = Generator(FACTOR_B, args.start_b)
+        trials = 40000000
+    elif args.part == 'two':
+        a = PickyGenerator(FACTOR_A, args.start_a, CONSTRAINT_A)
+        b = PickyGenerator(FACTOR_B, args.start_b, CONSTRAINT_B)
+        trials = 5000000
     judge = Judge()
-    trials = 40000000
     matches = judge.compare_all(a, b, trials)
-    print("{} matches in {} trials".format(matches, trials))
-    
+    print("part {}: {} matches in {} trials".format(args.part, matches, trials))
