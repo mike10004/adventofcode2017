@@ -1,0 +1,27 @@
+{
+  "name": "adventofcode2017-day16",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Day 16 in Advent of Code 2017",
+  "main": "index.js",
+  "scripts": {
+    "test": "karma start --single-run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/mike10004/adventofcode2017.git"
+  },
+  "author": "Mike Chaberski",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mike10004/adventofcode2017/issues"
+  },
+  "homepage": "https://github.com/mike10004/adventofcode2017#readme",
+  "devDependencies": {
+    "jasmine-core": "^2.8.0",
+    "karma": "^2.0.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-commonjs": "^1.0.0",
+    "karma-jasmine": "^1.1.1"
+  }
+}
