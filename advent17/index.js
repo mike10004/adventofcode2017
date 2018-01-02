@@ -1,10 +1,12 @@
 const util = require('util');
 const assert = require('assert');
 const args = process.argv.slice(2);
-const steps = parseInt(args[0]);
-assert(!isNaN(steps), "must provide step count as argument");
+const steps = parseInt(args[0], 10);
+const insertions = parseInt(args[1], 10);
+const targetPreceder = parseInt(args[2], 10);
+assert(!isNaN(steps) && !isNaN(insertions) && !isNaN(targetPreceder), "must provide arguments: STEPS INSERTIONS NEIGHBOR (e.g. 394 2017 0): " + args.join(" "));
 const {SpinLock} = require('./spinlock');
 const lock = new SpinLock();
-lock.iterate(steps, 2017);
-const indexOf2017 = lock.nodes.indexOf(2017);
-console.log(util.format("value after 2017: %s", lock.nodes[indexOf2017 + 1]));
+lock.iterate(steps, insertions);
+const indexOfNeighbor = lock.nodes.indexOf(targetPreceder);
+console.log(util.format("value after 2017: %s", lock.nodes[indexOfNeighbor + 1]));
