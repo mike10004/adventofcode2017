@@ -3,7 +3,6 @@
   "private": true,
   "version": "1.0.0",
   "description": "Day 17",
-  "main": "index.js",
   "scripts": {
     "test": "mocha"
   },
