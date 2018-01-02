@@ -25,12 +25,15 @@ class SpinLock {
         this.nodes.splice(this.position, 0, label);
     }
 
-    iterate(steps, n) {
+    iterate(steps, n, reportInterval) {
         assert(typeof steps === 'number');
         assert(typeof n === 'number');
         for (let i = 0; i < n; i++) {
             this.advance(steps);
             this.insert();
+            if (i % reportInterval === 0) {
+                console.log(util.format("iterated %d steps %d times", steps, i));
+            }
         }
     }
 
@@ -45,6 +48,25 @@ class SpinLock {
     }
 }
 
+function findValueAfterZero(steps, insertions) {
+    let bufferLength = 1;
+    let position = 0;
+    let numTimesInLastPosition = 0;
+    let mostRecentInsertionAfter0 = 0;
+    let zeroPosition = 0;
+    for (let i = 0; i < insertions; i++) {
+        position = (position + steps) % bufferLength;
+        // console.log(util.format("%d insertions; position = %d", i, position));
+        if (position === zeroPosition) {
+            mostRecentInsertionAfter0 = (i + 1);
+        } 
+        position++;
+        bufferLength++;
+    }
+    return mostRecentInsertionAfter0;
+}
+
 module.exports = {
-    SpinLock: SpinLock
+    SpinLock: SpinLock,
+    findValueAfterZero: findValueAfterZero
 };

@@ -1,4 +1,4 @@
-const {SpinLock} = require('./spinlock');
+const {SpinLock, findValueAfterZero} = require('./spinlock');
 const assert = require('assert');
 
 describe('example', () => {
@@ -35,5 +35,19 @@ describe('example', () => {
         lock.iterate(3, 2017);
         const slice = lock.nodes.slice(lock.position - 3, lock.position + 4);
         assert.equal(new SpinLock(slice).render(true), '1512 1134 151 2017 638 1513 851')
+    });
+});
+
+describe.only('findValueAfterZero', () => {
+    const steps = 3;
+    [
+        0, 1, 2, 2, 2, 5, 5, 5, 5, 9
+    ].forEach((expected, n) => {
+        it("after " + n + " insertions", () => {
+            const lock = new SpinLock();
+            lock.iterate(steps, n);
+            const actual = findValueAfterZero(steps, n);
+            assert.equal(actual, expected, "state: " + lock.render());
+        });
     });
 });
