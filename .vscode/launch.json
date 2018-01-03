@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python",
+            "name": "python: current file",
             "type": "python",
             "request": "launch",
             "stopOnEntry": true,
@@ -51,7 +51,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "advent12: run",
+            "name": "advent12: launch",
             "cwd": "${workspaceFolder}/advent12",
             "program": "${workspaceFolder}/advent12/plumber.js",
             "args": [
@@ -68,41 +68,15 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "advent16: mocha",
+            "name": "mocha: current file",
             "program": "${workspaceFolder}/advent16/node_modules/mocha/bin/_mocha",
-            "cwd": "${workspaceFolder}/advent16",
+            "cwd": "${fileDirname}",
             "stopOnEntry": false,
             "args": [
                 "--no-timeouts",
-                "${workspaceFolder}/advent16/test.js"
+                "${file}"
             ],
             "internalConsoleOptions": "openOnSessionStart"
         },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "advent17: mocha",
-            "program": "${workspaceFolder}/advent16/node_modules/mocha/bin/_mocha",
-            "cwd": "${workspaceFolder}/advent16",
-            "stopOnEntry": false,
-            "args": [
-                "--no-timeouts",
-                "${workspaceFolder}/advent17/test.js"
-            ],
-            "internalConsoleOptions": "openOnSessionStart"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "advent19: mocha",
-            "program": "${workspaceFolder}/advent16/node_modules/mocha/bin/_mocha",
-            "cwd": "${workspaceFolder}/advent19",
-            "stopOnEntry": false,
-            "args": [
-                "--no-timeouts",
-                "${workspaceFolder}/advent19/test.js"
-            ],
-            "internalConsoleOptions": "openOnSessionStart"
-        }
    ]
 }
