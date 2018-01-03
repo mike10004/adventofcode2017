@@ -90,6 +90,19 @@
                 "${workspaceFolder}/advent17/test.js"
             ],
             "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "advent19: mocha",
+            "program": "${workspaceFolder}/advent16/node_modules/mocha/bin/_mocha",
+            "cwd": "${workspaceFolder}/advent19",
+            "stopOnEntry": false,
+            "args": [
+                "--no-timeouts",
+                "${workspaceFolder}/advent19/test.js"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
         }
    ]
 }

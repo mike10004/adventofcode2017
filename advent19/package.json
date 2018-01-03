@@ -1,0 +1,21 @@
+{
+  "name": "adventofcode2017-day19",
+  "version": "1.0.0",
+  "description": "Day 19",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/mike10004/adventofcode2017.git"
+  },
+  "author": "Mike Chaberski",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mike10004/adventofcode2017/issues"
+  },
+  "homepage": "https://github.com/mike10004/adventofcode2017#readme",
+  "devDependencies": {
+    "mocha": "^4.1.0"
+  }
+}
