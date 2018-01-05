@@ -17,10 +17,10 @@ function computeAccMag(p) {
     const ax = Math.abs(p.a[X]), ay = Math.abs(p.a[Y]), az = Math.abs(p.a[Z]);
     return vx * ax * ax + vy * ay * ay + vz * az * az;
 }
-
+const structures = require('../common/structures');
 for (let i = 0; i < particles.length; i++) {
-    const p = particles[i];
-    const accMag = computeAccMag(p);
+    const q = particles[i];
+    const accMag = computeAccMag(q);
     if (!(maxAccMag > accMag)) {
         maxAccMag = accMag;
         maxIndex = i;
@@ -32,5 +32,4 @@ for (let i = 0; i < particles.length; i++) {
 }
 console.log(util.format("particle %d has maximum accelerative magnitude %s (%s)", maxIndex, maxAccMag, particles[maxIndex]));
 console.log(util.format("particle %d has maximum accelerative magnitude %s (%s)", minIndex, minAccMag, particles[minIndex]));
-// not 762
-// not 955
+

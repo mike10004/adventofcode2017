@@ -78,5 +78,13 @@
             ],
             "internalConsoleOptions": "openOnSessionStart"
         },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "node: current file",
+            "cwd": "${fileDirname}",
+            "stopOnEntry": false,
+            "program": "${file}"
+        },
    ]
 }

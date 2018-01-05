@@ -86,6 +86,15 @@ class Multimap {
         }
     }
 
+    remove(key) {
+        const values = this.data.get(key);
+        if (typeof values !== 'undefined') {
+            this.data.delete(key);
+            this._numValues -= values.length;
+        }
+        return values || [];
+    }
+
     putAll(key, valueArray) {
         valueArray.forEach(value => {
             this.put(key, value);
