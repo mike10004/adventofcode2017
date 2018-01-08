@@ -114,6 +114,17 @@ class Grid {
         }
     }
 
+    count(filter) {
+        if (typeof filter === 'string') {
+            const ch = filter;
+            filter = (x => (x === ch));
+        }
+        filter = filter || (() => true);
+        assert(typeof filter === 'function', "filter must be a function");
+        const values = this.cells.values();
+        return values.filter(filter).length;
+    }
+
     render(virus, minRow, maxRow, minCol, maxCol) {
         const rows = [];
         minRow = typeof minRow === 'undefined' ? this.minRow : minRow;
@@ -126,7 +137,7 @@ class Grid {
                 let fmt = " %s ";
                 if (virus && r === virus.position.row && c === virus.position.col) {
                     fmt = "[%s]";
-                }
+                } 
                 const ch = util.format(fmt, this.cells.get(r, c) || CLEAN);
                 rowChars.push(ch);
             }
@@ -134,7 +145,7 @@ class Grid {
         }
         return rows.map(r => r.join('')
                 .replace(/[ ]+/g, ' ')
-                .replace(/ \[[#\.]\] /g, c => c.trim())
+                .replace(/ \[.\] /g, c => c.trim())
             ).join("\n");
     }
 
@@ -198,23 +209,30 @@ class Virus {
         throw 'unhandled transition from ' + fromStatus;
     }
 
-    move(grid) {
+    selectTurn(currentStatus) {
         let turn;
-        if (grid.isInfected(this.position)) {
+        if (currentStatus === INFECTED) {
             turn = RIGHT;
-        } else {
+        } else if (currentStatus === CLEAN) {
             turn = (LEFT);
+        } else {
+            throw 'unhandled current status: ' + currentStatus;
         }
+        return turn;
+        }
+
+    move(grid) {
+        const currentStatus = grid.getStatus(this.position);
+        let turn = this.selectTurn(currentStatus);
         this.direction = this.direction.turn(turn);
-        const previousStatus = grid.getStatus(this.position);
-        const status = this.transition(previousStatus);
-        grid.setStatus(this.position, status);
-        if (status === INFECTED) {
+        const newStatus = this.transition(currentStatus);
+        grid.setStatus(this.position, newStatus);
+        if (newStatus === INFECTED) {
             this.numInfections++;
         }
         assert(!(this.direction.row === 0 && this.direction.col === 0), util.format("direction is [0, 0]: %s", this.direction));
         this.position.translate(this.direction);
-        return new MoveSummary(turn, status, previousStatus);
+        return new MoveSummary(turn, newStatus, currentStatus);
     }
 }
 
@@ -243,9 +261,14 @@ module.exports = {
     WEST: WEST,
     RIGHT: RIGHT,
     LEFT: LEFT,
+    INFECTED: INFECTED,
+    CLEAN: CLEAN,
+    WEAKENED: WEAKENED,
+    FLAGGED: FLAGGED,
     Offset: Offset,
     Position: Position,
     Turn: Turn,
     Grid: Grid,
-    Virus: Virus
+    Virus: Virus,
+    PartTwoVirus: PartTwoVirus
 };

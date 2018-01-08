@@ -190,6 +190,12 @@ class Table {
         colMap.set(col, value);
     }
 
+    /**
+     * 
+     * @param {*} row row key 
+     * @param {*} col column key
+     * @returns {*} corresponding value or undefined
+     */
     get(row, col) {
         const colMap = this.rows.get(row);
         if (colMap) {
@@ -197,10 +203,20 @@ class Table {
         }
     }
 
+    /**
+     * 
+     * @param {*} row 
+     * @returns {Map}
+     */
     columnMap(row) {
         return new Map(this.rows.get(row) || new Map());
     }
 
+    /**
+     * 
+     * @param {*} col 
+     * @returns {Map}
+     */
     rowMap(col) {
         const m = new Map();
         for (let e of this.rows) {
@@ -212,21 +228,41 @@ class Table {
         return m;
     }
 
+    /**
+     * @returns {Array}
+     */
     rowKeys() {
         return Array.from(this.rows.keys());
     }
 
+    /**
+     * @returns {Array}
+     */
     columnKeys() {
-        const cks = [];
+        const columnKeys = new Set();
         for (const entry of this.rows) {
             const row = entry[0], colMap = entry[1];
             for (const col of colMap.keys()) {
-                cks.push(col);
+                columnKeys.add(col);
             }
         }
-        return cks;
+        return Array.from(columnKeys);
     }
 
+    /**
+     * @returns {Array}
+     */
+    values() {
+        const values = [];
+        for (const entry of this.rows) {
+            const row = entry[0], colMap = entry[1];
+            for (const col of colMap.keys()) {
+                const value = colMap.get(col);
+                values.push(value);
+            }
+        }
+        return values;
+    }
 }
 
 function getSorter(value) {

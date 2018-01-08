@@ -1,5 +1,5 @@
 const structures = require('../common/structures');
-const {Position, Grid, Virus, NORTH, EAST, SOUTH, WEST, RIGHT, LEFT} = require('./sporifica');
+const {Position, Grid, Virus, PartTwoVirus, INFECTED, NORTH, EAST, SOUTH, WEST, RIGHT, LEFT} = require('./sporifica');
 const assert = require('assert');
 const util = require('util');
 
@@ -62,6 +62,18 @@ describe('Grid', () => {
             assert.equal(grid.isInfected(p), false, "expect not infected at " + p.toString());
         });
     })
+    it('count filterless', () => {
+        const grid = Grid.parse(text);
+        assert.equal(grid.count(), 9);
+    })
+    it('count string filter', () => {
+        const grid = Grid.parse(text);
+        assert.equal(grid.count(INFECTED), 2);
+    })
+    it('count function filter', () => {
+        const grid = Grid.parse(text);
+        assert.equal(grid.count(ch => ch === INFECTED), 2);
+    })
     it('render virus', () => {
         const grid = Grid.parse(text);
         const rendering = grid.render(new Virus());
@@ -110,20 +122,51 @@ describe('Virus', () => {
         assert.deepEqual(virus.direction, WEST, "direction");
         assert.deepEqual(virus.position, new Position(1, -2));
     });
-    [
-        [7, 5],
-        [70, 41],
-        [10000, 5587],
-    ].forEach(testCase => {
-        const moves = testCase[0], expectedInfections = testCase[1];
-        it(util.format("move() x %d", moves), () => {
+    function doInfectionTest(VirusType, moves, expectedInfections) {
+        it(util.format("%s move() x %d", VirusType.name, moves), () => {
             const text = '..#\n#..\n...';
-            const virus = new Virus();
+            const virus = new VirusType();
             const grid = Grid.parse(text);
             for (let i = 0; i < moves; i++) {
                 virus.move(grid);
             }
             assert.equal(virus.numInfections, expectedInfections);    
         });
+    }
+    [
+        [Virus, 7, 5],
+        [Virus, 70, 41],
+        [Virus, 10000, 5587],
+        // [PartTwoVirus, 100, 26],
+        // [PartTwoVirus, 10000000, 2511944],
+    ].forEach(testCase => {
+        const VirusType = testCase[0], moves = testCase[1], expectedInfections = testCase[2];
+        doInfectionTest(VirusType, moves, expectedInfections);
     })
 });
+
+// describe('Virus', () => {
+//     it('turns', () => {
+//         const text = '..#\n#..\n...';
+//         const virus = new PartTwoVirus();
+//         const grid = Grid.parse(text);
+//         let result;
+//         console.log(util.format("%s\n%s\n", result, grid.render(virus)));
+//         assert.deepEqual(virus.position, new Position(0, 0));
+//         result = virus.move(grid);
+//         console.log(util.format("%s\n%s\n", result, grid.render(virus)));
+//         assert.equal(result.turn, LEFT);
+//         assert.deepEqual(virus.direction, WEST, "direction");
+//         assert.deepEqual(virus.position, new Position(0, -1));
+//         result = virus.move(grid);
+//         console.log(util.format("%s\n%s\n", result, grid.render(virus)));
+//         assert.equal(result.turn, RIGHT);
+//         assert.deepEqual(virus.direction, NORTH, "direction");
+//         assert.deepEqual(virus.position, new Position(1, -1));
+//         result = virus.move(grid);
+//         console.log(util.format("%s\n%s\n", result, grid.render(virus)));
+//         assert.equal(result.turn, LEFT);
+//         assert.deepEqual(virus.direction, WEST, "direction");
+//         assert.deepEqual(virus.position, new Position(1, -2));
+//     });
+// });
