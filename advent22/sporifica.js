@@ -53,6 +53,8 @@ class Turn {
 }
 
 const RIGHT = new Turn(0, -1, 1, 0, 'right'), LEFT = new Turn(0, 1, -1, 0, 'left');
+const IDENTITY = new Turn(1, 0, 0, 1, 'straight');
+const REVERSE = new Turn(-1, 0, 0, -1, 'reverse');
 
 class Position extends Offset {
     constructor(row, col) {
@@ -252,6 +254,19 @@ class PartTwoVirus extends Virus {
         throw 'unhandled transition from ' + fromStatus;
     }
 
+    selectTurn(currentStatus) {
+        switch (currentStatus) {
+            case CLEAN:
+                return LEFT;
+            case WEAKENED:
+                return IDENTITY;
+            case INFECTED:
+                return RIGHT;
+            case FLAGGED:
+                return REVERSE;
+        }
+        throw 'status not handled: ' + currentStatus;
+    }
 }
 
 module.exports = {
@@ -261,6 +276,8 @@ module.exports = {
     WEST: WEST,
     RIGHT: RIGHT,
     LEFT: LEFT,
+    IDENTITY: IDENTITY,
+    REVERSE: REVERSE,
     INFECTED: INFECTED,
     CLEAN: CLEAN,
     WEAKENED: WEAKENED,

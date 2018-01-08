@@ -1,5 +1,5 @@
 const structures = require('../common/structures');
-const {Position, Grid, Virus, PartTwoVirus, INFECTED, NORTH, EAST, SOUTH, WEST, RIGHT, LEFT} = require('./sporifica');
+const {Position, Grid, Virus, PartTwoVirus, INFECTED, NORTH, EAST, SOUTH, WEST, RIGHT, LEFT, IDENTITY, REVERSE} = require('./sporifica');
 const assert = require('assert');
 const util = require('util');
 
@@ -14,6 +14,14 @@ describe('Offset', () => {
         [EAST, LEFT, NORTH, "EAST-LEFT"],
         [SOUTH, LEFT, EAST, "SOUTH-LEFT"],
         [WEST, LEFT, SOUTH, "WEST-LEFT"],
+        [NORTH, IDENTITY, NORTH, "NORTH-IDENTITY"],
+        [EAST, IDENTITY, EAST, "EAST-IDENTITY"],
+        [SOUTH, IDENTITY, SOUTH, "SOUTH-IDENTITY"],
+        [WEST, IDENTITY, WEST, "WEST-IDENTITY"],
+        [NORTH, REVERSE, SOUTH, "NORTH-REVERSE"],
+        [EAST, REVERSE, WEST, "EAST-REVERSE"],
+        [SOUTH, REVERSE, NORTH, "SOUTH-REVERSE"],
+        [WEST, REVERSE, EAST, "WEST-REVERSE"],
     ];
     testCases.forEach(tc => {
         const initial = tc[0], turn = tc[1], expected = tc[2], desc = tc[3];
@@ -137,36 +145,9 @@ describe('Virus', () => {
         [Virus, 7, 5],
         [Virus, 70, 41],
         [Virus, 10000, 5587],
-        // [PartTwoVirus, 100, 26],
-        // [PartTwoVirus, 10000000, 2511944],
+        [PartTwoVirus, 100, 26],
     ].forEach(testCase => {
         const VirusType = testCase[0], moves = testCase[1], expectedInfections = testCase[2];
         doInfectionTest(VirusType, moves, expectedInfections);
     })
 });
-
-// describe('Virus', () => {
-//     it('turns', () => {
-//         const text = '..#\n#..\n...';
-//         const virus = new PartTwoVirus();
-//         const grid = Grid.parse(text);
-//         let result;
-//         console.log(util.format("%s\n%s\n", result, grid.render(virus)));
-//         assert.deepEqual(virus.position, new Position(0, 0));
-//         result = virus.move(grid);
-//         console.log(util.format("%s\n%s\n", result, grid.render(virus)));
-//         assert.equal(result.turn, LEFT);
-//         assert.deepEqual(virus.direction, WEST, "direction");
-//         assert.deepEqual(virus.position, new Position(0, -1));
-//         result = virus.move(grid);
-//         console.log(util.format("%s\n%s\n", result, grid.render(virus)));
-//         assert.equal(result.turn, RIGHT);
-//         assert.deepEqual(virus.direction, NORTH, "direction");
-//         assert.deepEqual(virus.position, new Position(1, -1));
-//         result = virus.move(grid);
-//         console.log(util.format("%s\n%s\n", result, grid.render(virus)));
-//         assert.equal(result.turn, LEFT);
-//         assert.deepEqual(virus.direction, WEST, "direction");
-//         assert.deepEqual(virus.position, new Position(1, -2));
-//     });
-// });
