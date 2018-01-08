@@ -1,0 +1,14 @@
+{
+  "name": "adventofcode2017-day22",
+  "version": "1.0.0",
+  "description": "Day 22",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Mike Chaberski",
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "^4.1.0"
+  }
+}
