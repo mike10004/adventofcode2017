@@ -1,5 +1,5 @@
 const structures = require('../common/structures');
-const INFECTED = '#', CLEAN = '.';
+const INFECTED = '#', CLEAN = '.', WEAKENED = 'W', FLAGGED = 'F';
 const util = require('util');
 const assert = require('assert');
 
@@ -77,14 +77,16 @@ class Grid {
         this.maxCol = null;
     }
 
-    isInfected(position) {
+    getStatus(position) {
         assert(position instanceof Position, "expected instance of position");
-        const value = this.cells.get(position.row, position.col);
-        return value === INFECTED;
+        return this.cells.get(position.row, position.col) || CLEAN;
     }
 
-    invertInfected(position) {
-        assert(position instanceof Position, "first arg must be Position");
+    isInfected(position) {
+        return this.getStatus(position) === INFECTED;
+    }
+
+    expand(position) {
         if (this.minRow === null || position.row < this.minRow) {
             this.minRow = position.row;
         }
@@ -97,9 +99,12 @@ class Grid {
         if (this.maxRow === null || position.row > this.maxRow) {
             this.maxRow = position.row;
         }
-        const newValue = this.isInfected(position) ? CLEAN : INFECTED;
-        this.cells.put(position.row, position.col, newValue);
-        return newValue;
+    }
+
+    setStatus(position, status) {
+        assert(position instanceof Position, "first arg must be Position");
+        this.expand(position);
+        this.cells.put(position.row, position.col, status);
     }
 
     dump() {
@@ -158,11 +163,11 @@ class Grid {
 
 class MoveSummary {
 
-    constructor(turn, infectedness) {
+    constructor(turn, status, previous) {
         this.turn = turn;
-        this.infectedness = infectedness;
-        const opposite = infectedness === INFECTED ? CLEAN : INFECTED;
-        this.description = util.format("turn %s; %s->%s", turn.name, opposite, infectedness);
+        this.infectedness = status;
+        this.previous = previous;
+        this.description = util.format("turn %s; %s->%s", turn.name, previous, status);
     }
 
     describe() {
@@ -183,6 +188,16 @@ class Virus {
         this.numInfections = 0;
     }
 
+    transition(fromStatus) {
+        switch (fromStatus) {
+            case CLEAN:
+                return INFECTED;
+            case INFECTED:
+                return CLEAN;
+        }
+        throw 'unhandled transition from ' + fromStatus;
+    }
+
     move(grid) {
         let turn;
         if (grid.isInfected(this.position)) {
@@ -191,16 +206,35 @@ class Virus {
             turn = (LEFT);
         }
         this.direction = this.direction.turn(turn);
-        const infected = grid.invertInfected(this.position);
-        if (infected === INFECTED) {
+        const previousStatus = grid.getStatus(this.position);
+        const status = this.transition(previousStatus);
+        grid.setStatus(this.position, status);
+        if (status === INFECTED) {
             this.numInfections++;
         }
         assert(!(this.direction.row === 0 && this.direction.col === 0), util.format("direction is [0, 0]: %s", this.direction));
         this.position.translate(this.direction);
-        return new MoveSummary(turn, infected);
+        return new MoveSummary(turn, status, previousStatus);
     }
 }
 
+class PartTwoVirus extends Virus {
+
+    transition(fromStatus) {
+        switch (fromStatus) {
+            case CLEAN:
+                return WEAKENED;
+            case WEAKENED: 
+                return INFECTED;
+            case INFECTED:
+                return FLAGGED;
+            case FLAGGED:
+                return CLEAN;
+        }
+        throw 'unhandled transition from ' + fromStatus;
+    }
+
+}
 
 module.exports = {
     NORTH: NORTH,
@@ -213,5 +247,5 @@ module.exports = {
     Position: Position,
     Turn: Turn,
     Grid: Grid,
-    Virus: Virus  
+    Virus: Virus
 };
