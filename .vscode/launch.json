@@ -86,5 +86,18 @@
             "stopOnEntry": false,
             "program": "${file}"
         },
-   ]
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "mocha: test.js",
+            "program": "${fileDirname}/node_modules/mocha/bin/_mocha",
+            "cwd": "${fileDirname}",
+            "stopOnEntry": false,
+            "args": [
+                "--no-timeouts",
+                "${fileDirname}/test.js"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+  ]
 }
