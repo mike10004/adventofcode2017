@@ -45,7 +45,7 @@ describe('Bridge', () => {
 })
 
 describe(BridgeBuilder.name, () => {
-    it.only('buildAll', () => {
+    it('buildAll', () => {
         const bb = new BridgeBuilder();
         const components = Component.parseAll("0/2\n2/2\n2/3\n3/4\n3/5\n0/1\n10/1\n9/10");
         let count = 0;

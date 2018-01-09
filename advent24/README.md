@@ -55,3 +55,5 @@ In the example above, there are two longest bridges:
 Of them, the one which uses the 3/5 component is stronger; its strength is 0+2 + 2+2 + 2+3 + 3+5 = 19.
 
 What is the strength of the longest bridge you can make? If you can make multiple bridges of the longest length, pick the strongest one.
+
+// 1854 too high

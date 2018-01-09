@@ -97,7 +97,7 @@ const NOOP = () => {};
 
 const helpBuild = function(bridge, components, callback, failback) {
     callback = callback || NOOP;
-    failback = failback || NOOP
+    failback = failback || NOOP;
     let anyAccepted = false;
     for (let c of components) {
         if (bridge.accepts(c)) {
@@ -105,7 +105,7 @@ const helpBuild = function(bridge, components, callback, failback) {
             const copy = bridge.copy();
             copy.append(c);
             callback(copy);
-            helpBuild(copy, components, callback);
+            helpBuild(copy, components, callback, failback);
         }
     }
     if (!anyAccepted) {
