@@ -1,4 +1,4 @@
-const {Instruction, Processor, SoundPlayer} = require('./duet');
+const {Instruction, Processor, communicate} = require('./duet');
 const util = require('util');
 const assert = require('assert');
 
@@ -17,14 +17,29 @@ describe('Instruction', () => {
     });
 })
 
-describe('Processor', () => {
-    it('processAll', () => {
-        const text = "set a 1\nadd a 2\nmul a a\nmod a 5\nsnd a\nset a 0\nrcv a\njgz a -1\nset a 1\njgz a -2\n";
+describe('communicate', () => {
+    it.only('sample', () => {
+        const text = "snd 1\n" + 
+            "snd 2\n" + 
+            "snd p\n" + 
+            "rcv a\n" + 
+            "rcv b\n" + 
+            "rcv c\n" + 
+            "rcv d\n";
         const instructions = Instruction.parseAll(text);
-        const player = new SoundPlayer();
-        const p = new Processor(player);
-        const registers = {};
-        p.processAll(registers, instructions, 8);
-        assert.equal(player.last(), 4);
+        const states = communicate(instructions, (result0, result1) => {
+            console.log(util.format("result0 = %s", result0));
+            console.log(util.format("result1 = %s", result1));
+            process.stdout.write("\n");
+        });
+        const r0 = states[0].registers, r1 = states[1].registers;
+        console.log("states[0]", states[0].toString());
+        console.log("states[1]", states[1].toString());
+        assert.equal(r0['c'], 1);
+        assert.equal(r1['c'], 0);
+        assert.equal(states[0].transmitter.getNumSent(), 3);
+        assert.equal(states[1].transmitter.getNumSent(), 3);
+        assert.equal(states[0].transmitter.getNumReceived(), 3);
+        assert.equal(states[1].transmitter.getNumReceived(), 3);
     })
 })
