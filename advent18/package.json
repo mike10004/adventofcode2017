@@ -1,0 +1,22 @@
+{
+  "name": "adventofcode2017-day18",
+  "version": "1.0.0",
+  "description": "Advent of Code 2017 Day 18",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mike10004/adventofcode2017.git"
+  },
+  "author": "Mike Chaberski",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mike10004/adventofcode2017/issues"
+  },
+  "homepage": "https://github.com/mike10004/adventofcode2017#readme",
+  "devDependencies": {
+    "mocha": "^4.1.0"
+  }
+}
